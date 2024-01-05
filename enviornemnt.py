@@ -10,19 +10,18 @@ class GridWorldEnv(gym.Env):
 
     def __init__(self, render_mode=None, size=5):
         self.size = size  # The size of the square grid
-        self.window_size = 512  # The size of the PyGame window
-
+        self.window_size = 640  # The size of the PyGame window
+        SCREEN_WIDTH = 640
+        SCREEN_HEIGHT = 640
         # Observations are dictionaries with the agent's and the target's location.
         # Each location is encoded as an element of {0, ..., `size`}^2, i.e. MultiDiscrete([size, size]).
-        self.observation_space = spaces.Dict(
-            {
-                "agent": spaces.Box(0, size - 1, shape=(2,), dtype=int),
-                "target": spaces.Box(0, size - 1, shape=(2,), dtype=int),
-            }
-        )
 
-        # We have 4 actions, corresponding to "right", "up", "left", "down"
-        self.action_space = spaces.Discrete(4)
+        #Watch game screen
+        # RGB or gray-scale?
+        self.observation_space = spaces.Box(low=0,high=255,shape=(SCREEN_WIDTH, SCREEN_HEIGHT, 3))
+
+        # Choose any tile on 20x20 grid
+        self.action_space = spaces.Discrete(400)
 
         """
         The following dictionary maps abstract actions from `self.action_space` to
