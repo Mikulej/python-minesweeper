@@ -267,3 +267,4 @@ while True:
 #https://www.youtube.com/watch?v=AY9MnQ4x3zk&t=8207s main
 #https://www.pygame.org/docs/
 #https://gymnasium.farama.org/tutorials/gymnasium_basics/environment_creation/
+#https://stable-baselines3.readthedocs.io/
