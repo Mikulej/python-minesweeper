@@ -4,11 +4,11 @@ import numpy as np
 from sys import exit
 
 pygame.init()
-TILE_X_AMOUNT = 12
-TILE_Y_AMOUNT = 10
+TILE_X_AMOUNT = 20
+TILE_Y_AMOUNT = 20
 screen = pygame.display.set_mode((TILE_X_AMOUNT * 32,TILE_Y_AMOUNT * 32))
 
-BOMB_AMOUNT = 100
+BOMB_AMOUNT = 10
 SAFE_TILES = TILE_X_AMOUNT * TILE_Y_AMOUNT - BOMB_AMOUNT
 pygame.display.set_caption('Minesweeper')
 clock = pygame.time.Clock()
@@ -127,6 +127,7 @@ def automaticUncover(x,y):
     
 def pickTile(x,y):
     global firstMove
+    global score
     if firstMove == True:
         replacedBombs = 0
         if y - 1 >= 0 and x - 1 >= 0 and hiddenChart[y-1][x-1] == 9:
@@ -150,7 +151,7 @@ def pickTile(x,y):
         if y + 1 < TILE_Y_AMOUNT and x - 1 >= 0 and hiddenChart[y+1][x-1] == 9:
             hiddenChart[y+1][x-1] = 0
             replacedBombs += 1
-        if y + 1 < TILE_Y_AMOUNT and hiddenChart[y+1][x] ==9:
+        if y + 1 < TILE_Y_AMOUNT and hiddenChart[y+1][x] == 9:
             hiddenChart[y+1][x] = 0
             replacedBombs += 1
         if y + 1 < TILE_Y_AMOUNT and x + 1 < TILE_X_AMOUNT and hiddenChart[y+1][x+1] == 9:
@@ -194,6 +195,8 @@ def pickTile(x,y):
     #automaticly uncover tiles that are not next to bombs        
     if hiddenChart[y][x] == 0:
         automaticUncover(x,y)
+    else:
+        score += 1
     firstMove = False
 
 def placeBombs(amount):
@@ -238,6 +241,7 @@ while True:
             pickTile(mx,my)
             chart[my][mx] = hiddenChart[my][mx]          
             
+            print(score,"/",SAFE_TILES)
             if hiddenChart[my][mx] == 9:
                 revealBombs()
                 print("You lost!")
@@ -262,3 +266,4 @@ while True:
 #https://www.youtube.com/watch?v=M6e3_8LHc7A&list=WL&index=84&t=662s getSprite
 #https://www.youtube.com/watch?v=AY9MnQ4x3zk&t=8207s main
 #https://www.pygame.org/docs/
+#https://gymnasium.farama.org/tutorials/gymnasium_basics/environment_creation/
