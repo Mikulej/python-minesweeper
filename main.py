@@ -4,11 +4,11 @@ import numpy as np
 from sys import exit
 
 pygame.init()
-TILE_X_AMOUNT = 20
+TILE_X_AMOUNT = 24
 TILE_Y_AMOUNT = 20
 screen = pygame.display.set_mode((TILE_X_AMOUNT * 32,TILE_Y_AMOUNT * 32))
 
-BOMB_AMOUNT = 50
+BOMB_AMOUNT = 150
 SAFE_TILES = TILE_X_AMOUNT * TILE_Y_AMOUNT - BOMB_AMOUNT
 pygame.display.set_caption('Minesweeper')
 clock = pygame.time.Clock()
@@ -129,47 +129,57 @@ def pickTile(x,y):
     global firstMove
     global score
     if firstMove == True:
-        replacedBombs = 0
-        if y - 1 >= 0 and x - 1 >= 0 and hiddenChart[y-1][x-1] == 9:
-            hiddenChart[y-1][x-1] = 0
-            replacedBombs += 1
-        if y - 1 >= 0 and hiddenChart[y-1][x] ==9:
-            hiddenChart[y-1][x] = 0
-            replacedBombs += 1
-        if y - 1 >= 0 and x + 1 < TILE_X_AMOUNT and hiddenChart[y-1][x+1] == 9:
-            hiddenChart[y-1][x+1] = 0
-            replacedBombs += 1
-        if x - 1 >= 0 and hiddenChart[y][x-1] == 9:
-            hiddenChart[y][x-1] = 0
-            replacedBombs += 1
-        if hiddenChart[y][x] == 9:
-            hiddenChart[y][x] = 0
-            replacedBombs += 1
-        if x + 1 < TILE_X_AMOUNT and hiddenChart[y][x+1] == 9:
-            hiddenChart[y][x+1] = 0
-            replacedBombs += 1
-        if y + 1 < TILE_Y_AMOUNT and x - 1 >= 0 and hiddenChart[y+1][x-1] == 9:
-            hiddenChart[y+1][x-1] = 0
-            replacedBombs += 1
-        if y + 1 < TILE_Y_AMOUNT and hiddenChart[y+1][x] == 9:
-            hiddenChart[y+1][x] = 0
-            replacedBombs += 1
-        if y + 1 < TILE_Y_AMOUNT and x + 1 < TILE_X_AMOUNT and hiddenChart[y+1][x+1] == 9:
-            hiddenChart[y+1][x+1] = 0
-            replacedBombs += 1
+        # replacedBombs = 0
+        # if y - 1 >= 0 and x - 1 >= 0 and hiddenChart[y-1][x-1] == 9:
+        #     hiddenChart[y-1][x-1] = 0
+        #     replacedBombs += 1
+        # if y - 1 >= 0 and hiddenChart[y-1][x] ==9:
+        #     hiddenChart[y-1][x] = 0
+        #     replacedBombs += 1
+        # if y - 1 >= 0 and x + 1 < TILE_X_AMOUNT and hiddenChart[y-1][x+1] == 9:
+        #     hiddenChart[y-1][x+1] = 0
+        #     replacedBombs += 1
+        # if x - 1 >= 0 and hiddenChart[y][x-1] == 9:
+        #     hiddenChart[y][x-1] = 0
+        #     replacedBombs += 1
+        # if hiddenChart[y][x] == 9:
+        #     hiddenChart[y][x] = 0
+        #     replacedBombs += 1
+        # if x + 1 < TILE_X_AMOUNT and hiddenChart[y][x+1] == 9:
+        #     hiddenChart[y][x+1] = 0
+        #     replacedBombs += 1
+        # if y + 1 < TILE_Y_AMOUNT and x - 1 >= 0 and hiddenChart[y+1][x-1] == 9:
+        #     hiddenChart[y+1][x-1] = 0
+        #     replacedBombs += 1
+        # if y + 1 < TILE_Y_AMOUNT and hiddenChart[y+1][x] == 9:
+        #     hiddenChart[y+1][x] = 0
+        #     replacedBombs += 1
+        # if y + 1 < TILE_Y_AMOUNT and x + 1 < TILE_X_AMOUNT and hiddenChart[y+1][x+1] == 9:
+        #     hiddenChart[y+1][x+1] = 0
+        #     replacedBombs += 1
         #Get all cover tiles outside safety square
         safeTiles = []
         for i in range(0,TILE_Y_AMOUNT):
             for j in range (0,TILE_X_AMOUNT):
-                if abs(i - y) <= 1 or abs(j - x) <= 1 or hiddenChart[i][j] == 9:
+                if abs(i - y) <= 1 and abs(j - x) <= 1:
                     continue
                 safeTiles.insert(0,(j,i))
+        #Just place bombs...
+        placedBombs = 0
+        #print(len(safeTiles))
+        while placedBombs != BOMB_AMOUNT:
+                k = random.randint(0,len(safeTiles)-1)
+                hiddenChart[safeTiles[k][1]][safeTiles[k][0]] = 9
+                #print("Placing bomb at Y:",safeTiles[k][1]," X:",safeTiles[k][0])
+                del safeTiles[k]
+                #print(len(safeTiles))    
+                placedBombs += 1
         #Place replaced bombs
-        while replacedBombs >0:
-            randomNum = random.randint(0,len(safeTiles)- 1)
-            newX, newY =  safeTiles[randomNum]
-            hiddenChart[newY][newX] = 9
-            replacedBombs -= 1
+        # while replacedBombs >0:
+        #     randomNum = random.randint(0,len(safeTiles)- 1)
+        #     newX, newY =  safeTiles[randomNum]
+        #     hiddenChart[newY][newX] = 9
+        #     replacedBombs -= 1
                 
         #Place numbers near bombs
         for i in range(0,TILE_Y_AMOUNT):
@@ -209,25 +219,44 @@ def placeBombs(amount):
                 hiddenChart[y][x] = 9
                 placedBombs += 1
                 break
+#Better version of placeBombs
+def placeBombsv2(amount):
+    safeTiles = []
+    for i in range(0,TILE_Y_AMOUNT):
+        for j in range (0,TILE_X_AMOUNT):
+            safeTiles.insert(0,(j,i))
+    placedBombs = 0
+    #print(len(safeTiles))
+    while placedBombs != amount:
+            k = random.randint(0,len(safeTiles)-1)
+            hiddenChart[safeTiles[k][1]][safeTiles[k][0]] = 9
+            #print("Placing bomb at Y:",safeTiles[k][1]," X:",safeTiles[k][0])
+            del safeTiles[k]
+            #print(len(safeTiles))    
+            placedBombs += 1
 
-placeBombs(BOMB_AMOUNT)
-
+#placeBombsv2(BOMB_AMOUNT)
 #Create cover tiles
+# for i in range(0,TILE_Y_AMOUNT):
+#     for j in range (0,TILE_X_AMOUNT):
+#         if j%2==0:
+#             if i%2==0:
+#                 chart[i][j] = -1
+#             else:
+#                 chart[i][j] = -2
+#         else:
+#             if i%2==0:
+#                 chart[i][j] = -2
+#             else:
+#                 chart[i][j] = -1
+
+#         grid[i][j] = pygame.Rect(j * 32,i*32,32,32).copy()
+#     print("\n",end="")
+#Non chessboard mode
 for i in range(0,TILE_Y_AMOUNT):
     for j in range (0,TILE_X_AMOUNT):
-        if j%2==0:
-            if i%2==0:
-                chart[i][j] = -1
-            else:
-                chart[i][j] = -2
-        else:
-            if i%2==0:
-                chart[i][j] = -2
-            else:
-                chart[i][j] = -1
-
+        chart[i][j] = -1
         grid[i][j] = pygame.Rect(j * 32,i*32,32,32).copy()
-    print("\n",end="")
 
 while True:
     for event in pygame.event.get():
