@@ -1,16 +1,17 @@
 import gymnasium as gym
 from stable_baselines3.common.env_checker import check_env
-import stable_baselines3
 from enviornement import MineSweeper
 
-env = MineSweeper()
-observation = env.reset(seed=42)
-for _ in range(500):
+env = MineSweeper(renderMode="console")
+check_env(env,warn=True)
+observation = env.reset()
+for _ in range(1000):
     action = env.action_space.sample()
     print("Action is ",action) 
-    observation, reward, terminated, truncated, info = env.step(action)
-
-    if terminated or truncated:
-      observation, info = env.reset()
+    observation, reward, terminated = env.step(action)
+    env.render(env.RENDER_MODE)
+    if terminated:
+      print("Terminated with score: ",env.score,"/",env.WINNING_SCORE)
+      observation = env.reset()
 env.close()
 

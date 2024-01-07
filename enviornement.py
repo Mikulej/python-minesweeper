@@ -81,7 +81,8 @@ class MineSweeper(gym.Env):
             totalReward += 1
         self.firstMove = False
         return totalReward
-    def __init__(self, render_mode=None, sizeX=20,sizeY=20,bombs=80):
+    def __init__(self, renderMode=None, sizeX=20,sizeY=20,bombs=80):
+        self.RENDER_MODE = renderMode
         self.TILE_X_AMOUNT = sizeX 
         self.TILE_Y_AMOUNT = sizeY
         self.BOMB_AMOUNT = bombs
@@ -95,9 +96,7 @@ class MineSweeper(gym.Env):
         self.observation_space = spaces.Box(low=-1,high=9,shape=(self.TILE_Y_AMOUNT, self.TILE_X_AMOUNT),dtype=np.int8)
         # Choose any tile on 20x20 grid
         #Action space will shrink overtime, policy must choose only viable tiles/actions (Policy cannot uncover uncovered tile)
-        #self.action_space = spaces.MultiDiscrete(np.array([[0,0],[self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]]))
-        #self.action_space = spaces.Tuple(spaces.Discrete(self.TILE_Y_AMOUNT),spaces.Discrete(self.TILE_X_AMOUNT))
-        self.action_space = spaces.Tuple(spaces.Discrete(2), spaces.Box(-1, 1, shape=(2,)))#TypeError: 'Discrete' object is not iterable
+        self.action_space = spaces.MultiDiscrete(np.array([self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]))
 
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
@@ -122,9 +121,12 @@ class MineSweeper(gym.Env):
 #sample returns y,x picktile needs x y
     def step(self, action):
         reward = self.pickTile(action[1],action[0])
+        terminated = False
         if reward == -1:
             reward = 0
             terminated = True
+        else:
+            self.score += reward
         if self.score == self.WINNING_SCORE:
             terminated = True
         return self.chart, reward, terminated
@@ -138,7 +140,10 @@ class MineSweeper(gym.Env):
             case "console":
                 for i in range(0,self.TILE_Y_AMOUNT):
                     for j in range (0,self.TILE_X_AMOUNT):
-                        print(self.chart[i][j],end="")
+                        if self.chart[i][j] < 0:
+                            print("?",end="")
+                        else:
+                            print(int(self.chart[i][j]),end="")              
                     print("\n",end="")
     def close(self):
         a = 2
