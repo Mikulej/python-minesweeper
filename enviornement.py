@@ -10,6 +10,41 @@ import random
 
 class MineSweeper(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
+    sprites = pygame.image.load("sprites/minesweeper.png")
+    sprites = pygame.transform.scale(sprites,(128,128))
+
+    def getSprite(self,spriteSheet,w,h,x,y):
+        sprite = pygame.Surface((w,h)).convert_alpha()
+        sprite.blit(spriteSheet,(0,0),(w * x, h * y,w,h))
+        return sprite
+   
+
+    def drawTile(self,x,y,id):
+        match id:
+            case -2:
+                self.screen.blit(self.spriteEmpty2,(x*32,y*32))
+            case -1: 
+                self.screen.blit(self.spriteEmpty1,(x*32,y*32))
+            case 0:
+                self.screen.blit(self.sprite0,(x*32,y*32))
+            case 1:
+                self.screen.blit(self.sprite1,(x*32,y*32))
+            case 2:
+                self.screen.blit(self.sprite2,(x*32,y*32))
+            case 3:
+                self.screen.blit(self.sprite3,(x*32,y*32))
+            case 4:
+                self.screen.blit(self.sprite4,(x*32,y*32))
+            case 5:
+                self.screen.blit(self.sprite5,(x*32,y*32))
+            case 6:
+                self.screen.blit(self.sprite6,(x*32,y*32))
+            case 7:
+                self.screen.blit(self.sprite7,(x*32,y*32))
+            case 8:
+                self.screen.blit(self.sprite8,(x*32,y*32))
+            case 9:
+                self.screen.blit(self.spriteBomb,(x*32,y*32))    
     def automaticUncover(self,x,y):
         totalReward = 0
         if self.hiddenChart[y][x] != 9 and self.chart[y][x] < 0: 
@@ -101,9 +136,30 @@ class MineSweeper(gym.Env):
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
+        self.score = 0
+        if renderMode == "human":
+            pygame.init()
+            self.screen = pygame.display.set_mode((self.TILE_X_AMOUNT * 32,self.TILE_Y_AMOUNT * 32))
+            pygame.display.set_caption('Minesweeper')
+            self.sprites = pygame.image.load("sprites/minesweeper.png")
+            self.sprites = pygame.transform.scale(self.sprites,(128,128))
+            self.spriteEmpty1 = self.getSprite(self.sprites,32,32,0,0)
+            self.spriteEmpty2 = self.getSprite(self.sprites,32,32,1,0)
+            self.sprite0 = self.getSprite(self.sprites,32,32,3,3)
+            self.sprite1 = self.getSprite(self.sprites,32,32,0,1)
+            self.sprite2 = self.getSprite(self.sprites,32,32,1,1)
+            self.sprite3 = self.getSprite(self.sprites,32,32,2,1)
+            self.sprite4 = self.getSprite(self.sprites,32,32,3,1)
+            self.sprite5 = self.getSprite(self.sprites,32,32,0,2)
+            self.sprite6 = self.getSprite(self.sprites,32,32,1,2)
+            self.sprite7 = self.getSprite(self.sprites,32,32,2,2)
+            self.sprite8 = self.getSprite(self.sprites,32,32,3,2)
+            self.spriteBomb = self.getSprite(self.sprites,32,32,0,3)
 
 
     def reset(self, seed=None, options=None):
+        #return info message
+        info = "Terminated with score: " + str(self.score) + "/" + str(self.WINNING_SCORE)
         #initialize agent and reset enviornment
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
@@ -116,8 +172,7 @@ class MineSweeper(gym.Env):
                 self.grid[i][j] = pygame.Rect(j * 32,i*32,32,32).copy()
         self.score = 0
         self.firstMove = True
-        
-        return np.array([self.chart]).astype(np.int8)
+        return np.array([self.chart]).astype(np.int8), info
 #sample returns y,x picktile needs x y
     def step(self, action):
         reward = self.pickTile(action[1],action[0])
@@ -136,7 +191,14 @@ class MineSweeper(gym.Env):
     def render(self,renderMode="human"):
         match renderMode:
             case "human":
-                a = 2
+                self.screen.fill((0,0,0))
+                for i in range(0,self.TILE_Y_AMOUNT):
+                    for j in range (0,self.TILE_X_AMOUNT):
+                        self.drawTile(j,i,self.chart[i][j])  
+                
+                #self.screen.blit(,(lastX*10,lastY*10)
+                pygame.display.update()
+                #clock.tick(60) #60 framerate cap      
             case "console":
                 for i in range(0,self.TILE_Y_AMOUNT):
                     for j in range (0,self.TILE_X_AMOUNT):
