@@ -6,7 +6,7 @@ from stable_baselines3 import DQN
 import time
 
 env = MineSweeper(renderMode="human")
-#check_env(env,warn=True)
+check_env(env,warn=True)
 observation = env.reset()
 for _ in range(1000):
     #time.sleep(1)

@@ -159,7 +159,11 @@ class MineSweeper(gym.Env):
 
     def reset(self, seed=None, options=None):
         #return info message
-        info = "Terminated with score: " + str(self.score) + "/" + str(self.WINNING_SCORE)
+        info = {
+            "ending": "Won",
+            "score": str(self.score) + "/" + str(self.WINNING_SCORE)
+        }
+        #info = "Terminated with score: " + str(self.score) + "/" + str(self.WINNING_SCORE)
         #initialize agent and reset enviornment
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
@@ -172,7 +176,7 @@ class MineSweeper(gym.Env):
                 self.grid[i][j] = pygame.Rect(j * 32,i*32,32,32).copy()
         self.score = 0
         self.firstMove = True
-        return np.array([self.chart]).astype(np.int8), info
+        return np.array(self.chart).astype(np.int8), info
 #sample returns y,x picktile needs x y
     def step(self, action):
         reward = self.pickTile(action[1],action[0])
