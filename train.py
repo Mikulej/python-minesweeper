@@ -7,14 +7,14 @@ import time
 
 env = MineSweeper(renderMode="human")
 check_env(env,warn=True)
-observation = env.reset()
+observation, info = env.reset()
 for _ in range(1000):
-    #time.sleep(1)
-    action = env.action_space.sample()
+    time.sleep(1)
+    action = env.action_space.sample() #TO DO: Pick only legal moves
     print("Action is ",action) 
-    observation, reward, terminated = env.step(action)
+    observation, reward, terminated,truncated, info = env.step(action)
     env.render(env.RENDER_MODE)
-    if terminated:
+    if terminated or truncated:
       observation, info = env.reset()
       print(info)
 env.close()
