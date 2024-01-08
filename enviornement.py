@@ -222,3 +222,16 @@ class MineSweeper(gym.Env):
     def close(self):
         pygame.quit()
         exit()
+    def get_action_masks(self):
+        invalidActions = []
+        for i in range(0,self.TILE_Y_AMOUNT):
+            for j in range (0,self.TILE_X_AMOUNT):
+                if self.chart[i][j] >= 0:
+                     invalidActions.append([i,j])
+        return np.array(invalidActions)
+       
+        
+
+    
+        
+#https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/blob/master/docs/modules/ppo_mask.rst

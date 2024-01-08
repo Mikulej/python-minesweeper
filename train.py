@@ -5,12 +5,27 @@ from enviornement import MineSweeper
 from stable_baselines3 import DQN
 import time
 
+from sb3_contrib import MaskablePPO
+from sb3_contrib.common.envs import InvalidActionEnvDiscrete
+from sb3_contrib.common.maskable.evaluation import evaluate_policy
+from sb3_contrib.common.maskable.utils import get_action_masks
+
 env = MineSweeper(renderMode="human")
-check_env(env,warn=True)
+#model = MaskablePPO("MlpPolicy", env,gamma =0.4)
+#model.learn(1000)
+#evaluate_policy(model, env, n_eval_episodes=20, reward_threshold=200, warn=False)
+#model.save("PPO-MineSweeper")
+#del model 
+#model = MaskablePPO.load("PPO-MineSweeper")
+#check_env(env,warn=True)
 observation, info = env.reset()
 for _ in range(1000):
     time.sleep(1)
-    action = env.action_space.sample() #TO DO: Pick only legal moves
+     #TO DO: Pick only legal moves
+    invalidActions = env.get_action_masks()
+    print("Invalid actions are: ",invalidActions)
+    action = env.action_space.sample()#policy goes here, sample is a purely random action
+    
     print("Action is ",action) 
     observation, reward, terminated,truncated, info = env.step(action)
     env.render(env.RENDER_MODE)
@@ -20,19 +35,4 @@ for _ in range(1000):
 env.close()
 
 
-# env = MineSweeper(renderMode="console")
 
-# model = DQN("MlpPolicy", env, verbose=1)
-# model.learn(total_timesteps=1000)
-# model.save("saperBot")
-
-# del model
-
-# model = DQN.load("saperBot")
-
-# obs = env.reset()
-# while True:
-#     action, _states = model.predict(obs, deterministic=False)
-#     obs, reward, terminated = env.step(action)
-#     if terminated:
-#         obs = env.reset()
