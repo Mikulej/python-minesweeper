@@ -6,7 +6,7 @@ from gymnasium import spaces
 
 import random
 
-
+from typing import List
 
 class MineSweeper(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
@@ -133,6 +133,12 @@ class MineSweeper(gym.Env):
         #Action space will shrink overtime, policy must choose only viable tiles/actions (Policy cannot uncover uncovered tile)
         self.action_space = spaces.MultiDiscrete(np.array([self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]))
 
+        self.possible_actions = []
+        for i in range(0,self.TILE_Y_AMOUNT):
+            for j in range (0,self.TILE_X_AMOUNT):
+                self.possible_actions.append([i,j])
+        self.invalid_actions = []
+
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
@@ -222,13 +228,15 @@ class MineSweeper(gym.Env):
     def close(self):
         pygame.quit()
         exit()
-    def get_action_masks(self):
-        invalidActions = []
+    def update_invalid_actions(self):
+        self.invalid_actions = []
         for i in range(0,self.TILE_Y_AMOUNT):
             for j in range (0,self.TILE_X_AMOUNT):
                 if self.chart[i][j] >= 0:
-                     invalidActions.append([i,j])
-        return np.array(invalidActions)
+                     self.invalid_actions.append([i,j])
+
+    def action_masks(self) -> List[bool]:
+        return [action not in self.invalid_actions for action in self.possible_actions]
        
         
 
