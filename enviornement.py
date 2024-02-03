@@ -121,7 +121,7 @@ class MineSweeper(gym.Env):
         self.TILE_X_AMOUNT = sizeX 
         self.TILE_Y_AMOUNT = sizeY
         self.BOMB_AMOUNT = bombs
-        self.WINNING_SCORE = self.TILE_X_AMOUNT * self.TILE_Y_AMOUNT
+        self.WINNING_SCORE = (self.TILE_X_AMOUNT * self.TILE_Y_AMOUNT) - self.BOMB_AMOUNT
         #SCREEN_WIDTH = TILE_X_AMOUNT * 32
         #SCREEN_HEIGHT = TILE_Y_AMOUNT * 32
 
@@ -131,7 +131,6 @@ class MineSweeper(gym.Env):
         self.observation_space = spaces.Box(low=-1,high=9,shape=(self.TILE_Y_AMOUNT, self.TILE_X_AMOUNT),dtype=np.int8)
         # Choose any tile on 20x20 grid
         #Action space will shrink overtime, policy must choose only viable tiles/actions (Policy cannot uncover uncovered tile)
-        #self.action_space = spaces.MultiDiscrete(np.array([self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]))
         self.action_space = spaces.Discrete(self.TILE_Y_AMOUNT*self.TILE_X_AMOUNT)
         
         self.possible_actions = []
@@ -200,7 +199,6 @@ class MineSweeper(gym.Env):
             "state": "Playing",
             "score": str(self.score) + "/" + str(self.WINNING_SCORE)
         }
-        #reward = self.pickTile(action[1],action[0])
         reward = self.pickTile(self.decode_action_y(action),self.decode_action_x(action))
         self.update_invalid_actions()
         terminated = False
@@ -241,7 +239,6 @@ class MineSweeper(gym.Env):
         for i in range(0,self.TILE_Y_AMOUNT):
             for j in range (0,self.TILE_X_AMOUNT):
                 if self.chart[i][j] >= 0:
-                     #self.invalid_actions.append([i,j])
                     self.invalid_actions.append((i*self.TILE_X_AMOUNT)+j)
 
     def action_masks(self) -> List[bool]:
