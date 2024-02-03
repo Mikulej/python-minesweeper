@@ -11,7 +11,7 @@ print(env.possible_actions)
 for _ in range(1000):
     time.sleep(1)
      #TO DO: Pick only legal moves
-    env.update_invalid_actions()
+
     #invalidActions = env.get_wrapper_attr('action_masks')
     print("Invalid actions are: ",env.invalid_actions)
 

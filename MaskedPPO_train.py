@@ -19,29 +19,29 @@ def mask_fn(env: gym.Env) -> np.ndarray:
     return env.get_action_masks()
 #Train model
 env = MineSweeper(renderMode="human")
-env = ActionMasker(env,env.get_action_masks())
+#env = ActionMasker(env,env.action_masks())
 check_env(env)
 observation, info = env.reset()
 model = MaskablePPO("MlpPolicy", env, gamma=0.4, seed=32, verbose=1)
 model.learn(total_timesteps=5000)
 
 #Test Model
-for _ in range(1000):
+# for _ in range(1000):
     
-     #TO DO: Pick only legal moves
-    invalidActions = env.get_action_masks()
-    #invalidActions = env.get_wrapper_attr('action_masks')
-    #print("Invalid actions are: ",invalidActions)
-    action, states = model.predict(observation,action_masks=invalidActions)
-    #action = env.action_space.sample()
+#      #TO DO: Pick only legal moves
+#     invalidActions = env.get_action_masks()
+#     #invalidActions = env.get_wrapper_attr('action_masks')
+#     #print("Invalid actions are: ",invalidActions)
+#     action, states = model.predict(observation,action_masks=invalidActions)
+#     #action = env.action_space.sample()
     
-    #print("Action is ",action) 
-    observation, reward, terminated,truncated, info = env.step(action)
-    env.render(env.RENDER_MODE)
-    if terminated or truncated:
-      observation, info = env.reset()
-      print(info)
-env.close()
+#     #print("Action is ",action) 
+#     observation, reward, terminated,truncated, info = env.step(action)
+#     env.render(env.RENDER_MODE)
+#     if terminated or truncated:
+#       observation, info = env.reset()
+#       print(info)
+# env.close()
 
 #https://sb3-contrib.readthedocs.io/en/master/modules/ppo_mask.html
 #https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/blob/master/sb3_contrib/common/envs/invalid_actions_env.py

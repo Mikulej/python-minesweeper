@@ -193,6 +193,7 @@ class MineSweeper(gym.Env):
             "score": str(self.score) + "/" + str(self.WINNING_SCORE)
         }
         reward = self.pickTile(action[1],action[0])
+        self.update_invalid_actions()
         terminated = False
         truncated = False
         if reward == -1:
