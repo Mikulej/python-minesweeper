@@ -1,12 +1,13 @@
 from sb3_contrib import MaskablePPO
-from sb3_contrib.common.envs import InvalidActionEnvDiscrete
+from sb3_contrib.common.envs import InvalidActionEnvMultiDiscrete
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
 # This is a drop-in replacement for EvalCallback
 from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 
 
-env = InvalidActionEnvDiscrete(dim=80, n_invalid_actions=60)
+env = InvalidActionEnvMultiDiscrete(dims=[20,20], n_invalid_actions=60)
+print(env.action_masks())
 model = MaskablePPO("MlpPolicy", env, gamma=0.4, seed=32, verbose=1)
 model.learn(5_000)
 

@@ -7,16 +7,19 @@ import time
 
 env = MineSweeper(renderMode="human")
 observation, info = env.reset()
-print(env.possible_actions)
+print("Observation space is:", env.observation_space)
+print("Action space is:", env.action_space)
+print("Action_masks is:",env.action_masks().__len__())
+print("Possible actions: ",env.possible_actions)
+print("Invalid actions: ",env.invalid_actions)
 for _ in range(1000):
     time.sleep(1)
-     #TO DO: Pick only legal moves
 
     #invalidActions = env.get_wrapper_attr('action_masks')
     print("Invalid actions are: ",env.invalid_actions)
 
     masking = env.action_masks()
-    print("Action masking is:", masking)
+    #print("Action masking is:", masking)
     #action, states = model.predict(observation,action_masks=invalidActions)
     action = env.action_space.sample()#policy goes here, sample is a purely random action
     
@@ -28,22 +31,6 @@ for _ in range(1000):
       print(info)
 env.close()
 
-
-# observation, info = env.reset()
-# for _ in range(1000):
-#     time.sleep(1)
-#      #TO DO: Pick only legal moves
-#     invalidActions = env.get_action_masks()
-#     print("Invalid actions are: ",invalidActions)
-#     action = env.action_space.sample()#policy goes here, sample is a purely random action
-    
-#     print("Action is ",action) 
-#     observation, reward, terminated,truncated, info = env.step(action)
-#     env.render(env.RENDER_MODE)
-#     if terminated or truncated:
-#       observation, info = env.reset()
-#       print(info)
-# env.close()
 
 
 

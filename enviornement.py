@@ -131,12 +131,13 @@ class MineSweeper(gym.Env):
         self.observation_space = spaces.Box(low=-1,high=9,shape=(self.TILE_Y_AMOUNT, self.TILE_X_AMOUNT),dtype=np.int8)
         # Choose any tile on 20x20 grid
         #Action space will shrink overtime, policy must choose only viable tiles/actions (Policy cannot uncover uncovered tile)
-        self.action_space = spaces.MultiDiscrete(np.array([self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]))
-
+        #self.action_space = spaces.MultiDiscrete(np.array([self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT]))
+        self.action_space = spaces.Discrete(self.TILE_Y_AMOUNT*self.TILE_X_AMOUNT)
+        
         self.possible_actions = []
         for i in range(0,self.TILE_Y_AMOUNT):
             for j in range (0,self.TILE_X_AMOUNT):
-                self.possible_actions.append([i,j])
+                self.possible_actions.append((i*self.TILE_X_AMOUNT)+j)
         self.invalid_actions = []
 
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
@@ -185,14 +186,22 @@ class MineSweeper(gym.Env):
         self.score = 0
         self.firstMove = True
         return np.array(self.chart).astype(np.int8), info
-#sample returns y,x picktile needs x y
+
+    def decode_action_y(self,action):
+        y = int(action / self.TILE_Y_AMOUNT)
+        return y
+    def decode_action_x(self,action):
+        x = action % self.TILE_X_AMOUNT
+        return x
+    #sample returns y,x picktile needs x y
     def step(self, action):
         #return info message
         info = {
             "state": "Playing",
             "score": str(self.score) + "/" + str(self.WINNING_SCORE)
         }
-        reward = self.pickTile(action[1],action[0])
+        #reward = self.pickTile(action[1],action[0])
+        reward = self.pickTile(self.decode_action_y(action),self.decode_action_x(action))
         self.update_invalid_actions()
         terminated = False
         truncated = False
@@ -204,8 +213,6 @@ class MineSweeper(gym.Env):
         if self.score == self.WINNING_SCORE:
             truncated = True
         return np.int8(self.chart), reward, terminated, truncated, info
-
- 
 
     def render(self,renderMode="human"):
         match renderMode:
@@ -234,10 +241,14 @@ class MineSweeper(gym.Env):
         for i in range(0,self.TILE_Y_AMOUNT):
             for j in range (0,self.TILE_X_AMOUNT):
                 if self.chart[i][j] >= 0:
-                     self.invalid_actions.append([i,j])
+                     #self.invalid_actions.append([i,j])
+                    self.invalid_actions.append((i*self.TILE_X_AMOUNT)+j)
 
     def action_masks(self) -> List[bool]:
         return [action not in self.invalid_actions for action in self.possible_actions]
+    
+
+    
        
         
 
