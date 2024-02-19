@@ -204,7 +204,7 @@ class MineSweeper(gym.Env):
         terminated = False
         truncated = False
         if reward == -1:
-            reward = 0
+            reward = -10
             terminated = True
         else:
             self.score += reward

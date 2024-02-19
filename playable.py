@@ -4,11 +4,11 @@ import numpy as np
 from sys import exit
 
 pygame.init()
-TILE_X_AMOUNT = 24
-TILE_Y_AMOUNT = 20
+TILE_X_AMOUNT = 16
+TILE_Y_AMOUNT = 16
 screen = pygame.display.set_mode((TILE_X_AMOUNT * 32,TILE_Y_AMOUNT * 32))
 
-BOMB_AMOUNT = 150
+BOMB_AMOUNT = 40
 SAFE_TILES = TILE_X_AMOUNT * TILE_Y_AMOUNT - BOMB_AMOUNT
 pygame.display.set_caption('Minesweeper')
 clock = pygame.time.Clock()

@@ -5,19 +5,32 @@ from enviornement import MineSweeper
 from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
+#from stable_baselines3.common.monitor import Monitor
 
 #Train model
-env = MineSweeper(renderMode="human")
+env = MineSweeper(renderMode="human",sizeX=16,sizeY=16,bombs=40)
 #check_env(env)
 observation, info = env.reset()
-model = MaskablePPO("MlpPolicy", env, gamma=0.95, seed=32, verbose=1)
-model.learn(total_timesteps=10000)
+model = MaskablePPO("MlpPolicy", env,
+                    learning_rate=0.01,
+                    n_steps= 2048,
+                    batch_size= 64,
+                    n_epochs= 10,
+                    gamma= 0.4)
+model.learn(total_timesteps=10_000,use_masking=True)
+print("Learning finished.")
+# reward = evaluate_policy(model,env,n_eval_episodes=2)
+# print("Mean reward is:",reward[0]," with error of: ",reward[1])
+# if reward[0] >= 300:
+#     print("Mean reward greater than 300, saving model...")
+#     model.save("minesweepermodel")    
+#     print("Model saved.")
 
+#model.save("minesweepermodel")
 #Test Model
 for _ in range(1000):
-    
     invalidActions = env.action_masks()
-    action, states = model.predict(observation,action_masks=invalidActions)
+    action, states = model.predict(observation,action_masks=invalidActions,deterministic=False)
     observation, reward, terminated,truncated, info = env.step(action)
     env.render(env.RENDER_MODE)
     if terminated or truncated:
