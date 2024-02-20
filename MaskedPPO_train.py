@@ -6,6 +6,7 @@ from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
 #from stable_baselines3.common.monitor import Monitor
+from time import sleep
 
 #Train model
 env = MineSweeper(renderMode="human",sizeX=16,sizeY=16,bombs=40)
@@ -27,12 +28,27 @@ print("Learning finished.")
 #     print("Model saved.")
 
 #model.save("minesweepermodel")
+
+
+for i in env.possible_actions:
+   print("x: ", env.decode_action_x(i),"y: ", env.decode_action_y(i))
+#print(env.possible_actions)
+observation, info = env.reset()
 #Test Model
-for _ in range(1000):
+i = 1
+for _ in range(20):
+    print(i,"score: ",env.score)
+    i=i+1
+    print(observation)
     invalidActions = env.action_masks()
+    print(invalidActions) #TO DO print coords of all possible tiles to uncover
     action, states = model.predict(observation,action_masks=invalidActions,deterministic=False)
+    print("x: ",env.decode_action_x(action), "y: ",env.decode_action_y(action))
     observation, reward, terminated,truncated, info = env.step(action)
     env.render(env.RENDER_MODE)
+    
+    
+    #sleep(10000)
     if terminated or truncated:
       observation, info = env.reset()
       print(info)
