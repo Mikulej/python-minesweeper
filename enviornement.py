@@ -176,6 +176,7 @@ class MineSweeper(gym.Env):
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
+        self.invalid_actions = []
 
         #create covered tiles
         for i in range(0,self.TILE_Y_AMOUNT):
@@ -240,6 +241,8 @@ class MineSweeper(gym.Env):
             for j in range (0,self.TILE_X_AMOUNT):
                 if self.chart[i][j] >= 0:
                     self.invalid_actions.append((i*self.TILE_X_AMOUNT)+j)
+        #print("Invalid actions from update_invalid_actions:")
+        #print(self.invalid_actions)
 
     def action_masks(self) -> List[bool]:
         return [action not in self.invalid_actions for action in self.possible_actions]
