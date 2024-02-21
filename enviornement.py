@@ -113,6 +113,7 @@ class MineSweeper(gym.Env):
         if self.hiddenChart[y][x] == 0:
            totalReward += self.automaticUncover(x,y)
         else:
+            self.chart[y][x] = self.hiddenChart[y][x]
             totalReward += 1
         self.firstMove = False
         return totalReward

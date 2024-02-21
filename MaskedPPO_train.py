@@ -30,30 +30,29 @@ print("Learning finished.")
 #model.save("minesweepermodel")
 
 
-for i in env.possible_actions:
-   print("i: ",i," x: ", env.decode_action_x(i)," y: ", env.decode_action_y(i))
-#print(env.possible_actions)
+# for i in env.possible_actions:
+#    print("i: ",i," x: ", env.decode_action_x(i)," y: ", env.decode_action_y(i))
 observation, info = env.reset()
 #Test Model
-i = 1
-for _ in range(20):
-    print(i,"score: ",env.score)
-    i+=1
-    print(observation)
+#i = 1
+for _ in range(3000):
+    #print(i,"score: ",env.score)
+    #i+=1
+    #print(observation)
     invalidActions = env.action_masks()
-    print(invalidActions) 
-    k = 0
-    temp = []
-    for ia in invalidActions:
-       if ia == True:
-        k+=1
-        continue
-       temp.append([env.decode_action_x(k),env.decode_action_y(k)])
-       #print("x: ",env.decode_action_x(k),"y: ",env.decode_action_y(k))
-       k+=1
-    print(temp)
+    # print(invalidActions) 
+    # k = 0
+    # temp = []
+    # for ia in invalidActions:
+    #    if ia == True:
+    #     k+=1
+    #     continue
+    #    temp.append([env.decode_action_x(k),env.decode_action_y(k)])
+    #    #print("x: ",env.decode_action_x(k),"y: ",env.decode_action_y(k))
+    #    k+=1
+    # print(temp)
     action, states = model.predict(observation,action_masks=invalidActions,deterministic=False)
-    print("x: ",env.decode_action_x(action), "y: ",env.decode_action_y(action))
+    #print("x: ",env.decode_action_x(action), "y: ",env.decode_action_y(action))
     observation, reward, terminated,truncated, info = env.step(action)
     env.render(env.RENDER_MODE)
     
