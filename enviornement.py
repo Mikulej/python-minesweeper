@@ -206,7 +206,8 @@ class MineSweeper(gym.Env):
         terminated = False
         truncated = False
         if reward == -1:
-            reward = -10
+            self.revealChart()
+            reward = 0
             terminated = True
         else:
             self.score += reward
@@ -247,6 +248,11 @@ class MineSweeper(gym.Env):
 
     def action_masks(self) -> List[bool]:
         return [action not in self.invalid_actions for action in self.possible_actions]
+    
+    def revealChart(self):
+        for i in range(0,self.TILE_Y_AMOUNT):
+            for j in range (0,self.TILE_X_AMOUNT):
+                self.chart[i][j] = self.hiddenChart[i][j]
     
 
     
