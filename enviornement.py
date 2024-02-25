@@ -109,6 +109,9 @@ class MineSweeper(gym.Env):
         if self.hiddenChart[y][x] == 9:
             return -1
         totalReward = 0
+        #check if picked uncovered tile
+        if self.chart[y][x] == self.hiddenChart[y][x]:
+            return -2
         #automaticly uncover tiles that are not next to bombs        
         if self.hiddenChart[y][x] == 0:
            totalReward += self.automaticUncover(x,y)
@@ -123,6 +126,8 @@ class MineSweeper(gym.Env):
         self.TILE_Y_AMOUNT = sizeY
         self.BOMB_AMOUNT = bombs
         self.WINNING_SCORE = (self.TILE_X_AMOUNT * self.TILE_Y_AMOUNT) - self.BOMB_AMOUNT
+        #self.terminated = False
+        #self.truncated = False
         #SCREEN_WIDTH = TILE_X_AMOUNT * 32
         #SCREEN_HEIGHT = TILE_Y_AMOUNT * 32
 
@@ -172,12 +177,13 @@ class MineSweeper(gym.Env):
         }
         if self.score == self.WINNING_SCORE:
             info["state"] = "Won"
-        #info = "Terminated with score: " + str(self.score) + "/" + str(self.WINNING_SCORE)
         #initialize agent and reset enviornment
         self.chart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
         self.invalid_actions = []
+        #self.terminated = False
+        #self.truncated = False
 
         #create covered tiles
         for i in range(0,self.TILE_Y_AMOUNT):
@@ -205,15 +211,19 @@ class MineSweeper(gym.Env):
         self.update_invalid_actions()
         terminated = False
         truncated = False
-        if reward == -1:
+        if reward == -1: #clicked tile with bomb
             self.revealChart()
             reward = 0
             terminated = True
-        else:
+        elif reward == -2: #clicked uncovered tile
+            reward = -1
+        else: #clicked safe tile
             self.score += reward
         if self.score == self.WINNING_SCORE:
             truncated = True
+            
         return np.int8(self.chart), reward, terminated, truncated, info
+        #return np.int8(self.chart), reward, self.terminated, self.truncated, info
 
     def render(self,renderMode="human"):
         match renderMode:
