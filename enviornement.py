@@ -126,8 +126,6 @@ class MineSweeper(gym.Env):
         self.TILE_Y_AMOUNT = sizeY
         self.BOMB_AMOUNT = bombs
         self.WINNING_SCORE = (self.TILE_X_AMOUNT * self.TILE_Y_AMOUNT) - self.BOMB_AMOUNT
-        #self.terminated = False
-        #self.truncated = False
         #SCREEN_WIDTH = TILE_X_AMOUNT * 32
         #SCREEN_HEIGHT = TILE_Y_AMOUNT * 32
 
@@ -182,8 +180,6 @@ class MineSweeper(gym.Env):
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
         self.invalid_actions = []
-        #self.terminated = False
-        #self.truncated = False
 
         #create covered tiles
         for i in range(0,self.TILE_Y_AMOUNT):
@@ -208,6 +204,7 @@ class MineSweeper(gym.Env):
             "score": str(self.score) + "/" + str(self.WINNING_SCORE)
         }
         reward = self.pickTile(self.decode_action_x(action),self.decode_action_y(action))
+        #reward *= 3
         self.update_invalid_actions()
         terminated = False
         truncated = False
@@ -220,10 +217,13 @@ class MineSweeper(gym.Env):
         else: #clicked safe tile
             self.score += reward
         if self.score == self.WINNING_SCORE:
+            #reward += 100
             truncated = True
-            
+        if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
+            reward -= 0.3
+        else:
+            reward += 0.3
         return np.int8(self.chart), reward, terminated, truncated, info
-        #return np.int8(self.chart), reward, self.terminated, self.truncated, info
 
     def render(self,renderMode="human"):
         match renderMode:
@@ -233,7 +233,6 @@ class MineSweeper(gym.Env):
                     for j in range (0,self.TILE_X_AMOUNT):
                         self.drawTile(j,i,self.chart[i][j])  
                 
-                #self.screen.blit(,(lastX*10,lastY*10)
                 pygame.display.update()
                 #clock.tick(60) #60 framerate cap      
             case "console":
@@ -253,8 +252,6 @@ class MineSweeper(gym.Env):
             for j in range (0,self.TILE_X_AMOUNT):
                 if self.chart[i][j] >= 0:
                     self.invalid_actions.append((i*self.TILE_X_AMOUNT)+j)
-        #print("Invalid actions from update_invalid_actions:")
-        #print(self.invalid_actions)
 
     def action_masks(self) -> List[bool]:
         return [action not in self.invalid_actions for action in self.possible_actions]
@@ -263,6 +260,27 @@ class MineSweeper(gym.Env):
         for i in range(0,self.TILE_Y_AMOUNT):
             for j in range (0,self.TILE_X_AMOUNT):
                 self.chart[i][j] = self.hiddenChart[i][j]
+
+    #check if agent gussed (picked tile is not near uncovered tiles)
+    def guessed(self,x,y):
+        if x + 1 < self.TILE_X_AMOUNT and self.chart[y][x+1] != -1:
+            return False
+        if x - 1 >= 0 and self.chart[y][x-1] != -1:
+            return False
+        if y + 1 < self.TILE_Y_AMOUNT and self.chart[y+1][x] != -1:
+            return False
+        if y - 1 >= 0 and self.chart[y-1][x] != -1:
+            return False
+        if x + 1 < self.TILE_X_AMOUNT and y + 1 < self.TILE_Y_AMOUNT and self.chart[y+1][x+1] != -1:
+            return False
+        if x + 1 < self.TILE_X_AMOUNT and y - 1 >= 0 and self.chart[y-1][x+1] != -1:
+            return False
+        if x - 1 >= 0 and y - 1 >= 0 and self.chart[y-1][x-1] != -1:
+            return False
+        if x - 1 >= 0 and y + 1 < self.TILE_Y_AMOUNT and self.chart[y+1][x-1] != -1:
+            return False
+        return True
+
     
 
     
