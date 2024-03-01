@@ -165,6 +165,7 @@ class MineSweeper(gym.Env):
             self.sprite7 = self.getSprite(self.sprites,32,32,2,2)
             self.sprite8 = self.getSprite(self.sprites,32,32,3,2)
             self.spriteBomb = self.getSprite(self.sprites,32,32,0,3)
+        self.reset()
 
 
     def reset(self, seed=None, options=None):
@@ -203,27 +204,31 @@ class MineSweeper(gym.Env):
             "state": "Playing",
             "score": str(self.score) + "/" + str(self.WINNING_SCORE)
         }
-        reward = self.pickTile(self.decode_action_x(action),self.decode_action_y(action))
-        #reward *= 3
+        uncoveredtiles = self.pickTile(self.decode_action_x(action),self.decode_action_y(action))
+        # if uncoveredtiles >= 1:
+        #     reward = 3
+        reward = uncoveredtiles
         self.update_invalid_actions()
         terminated = False
-        truncated = False
-        if reward == -1: #clicked tile with bomb
+        #truncated = False
+        if uncoveredtiles == -1: #clicked tile with bomb
             self.revealChart()
             reward = 0
             terminated = True
-        elif reward == -2: #clicked uncovered tile
+        elif uncoveredtiles == -2: #clicked uncovered tile
             reward = -1
         else: #clicked safe tile
-            self.score += reward
+            self.score += uncoveredtiles
         if self.score == self.WINNING_SCORE:
-            #reward += 100
-            truncated = True
-        if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
-            reward -= 0.3
-        else:
-            reward += 0.3
-        return np.int8(self.chart), reward, terminated, truncated, info
+            reward += 10
+            #truncated = True
+            terminated = True
+        # if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
+        #     reward -= 0.3
+        # else:
+        #     reward += 0.3
+        return np.int8(self.chart), reward, terminated, False, info
+        #return np.int8(self.chart), reward, terminated, truncated, info
 
     def render(self,renderMode="human"):
         match renderMode:
@@ -290,3 +295,4 @@ class MineSweeper(gym.Env):
     
         
 #https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/blob/master/docs/modules/ppo_mask.rst
+#https://www.gymlibrary.dev/content/environment_creation/

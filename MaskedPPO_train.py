@@ -17,7 +17,7 @@ model = MaskablePPO("MlpPolicy", env,
                     n_steps= 2048,
                     batch_size= 64,
                     n_epochs= 10,
-                    gamma= 0.95)
+                    gamma= 0.99)
 print("Learning...")
 model.learn(total_timesteps=10_000,use_masking=True)
 print("Learning finished.")
@@ -26,8 +26,8 @@ print("Learning finished.")
 print("Evaluating policy...")
 performence = evaluate_mask(model,env,timesteps=500)
 print("Mean score: ",performence[0]," Mean game completation: ",performence[1],"%")
-performence = evaluate_policy(model,env,use_masking=True)
-print("Mean reward=",performence[0]," Mean numbers of steps=",performence[1])
+# performence = evaluate_policy(model,env,use_masking=True)
+# print("Mean reward=",performence[0]," Mean numbers of steps=",performence[1])
 
 
 
