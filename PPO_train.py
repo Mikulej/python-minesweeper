@@ -8,6 +8,8 @@ from stable_baselines3.common.env_checker import check_env
 
 #Train Model
 env = MineSweeper(render_mode="human",sizeX=16,sizeY=16,bombs=40)
+if env == None:
+    print("Error: Failed to create an enviornment")
 #check_env(env)
 observation, info = env.reset()
 model = PPO("MlpPolicy", env,
@@ -23,7 +25,7 @@ print("Learning finished.")
 #Test Model
 print("Evaluating policy...")
 performence = evaluate(model,env,timesteps=500)
-print("Mean score: ",performence[0]," Mean game completation: ",performence[1],"%")
+print("Mean score: ",performence[0]," Win-rate: ",performence[1],"%")
 # performence = evaluate_policy(model,env)
 # print("Mean reward=",performence[0]," Mean numbers of steps=",performence[1])
 

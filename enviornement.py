@@ -129,6 +129,9 @@ class MineSweeper(gym.Env):
         #SCREEN_WIDTH = TILE_X_AMOUNT * 32
         #SCREEN_HEIGHT = TILE_Y_AMOUNT * 32
 
+        if (self.TILE_X_AMOUNT * self.TILE_Y_AMOUNT) - self.BOMB_AMOUNT < 9:
+            print("Error: Unable to guarantee first pick as safe")
+            return None
         #Using game screen: Watch game screen
         #self.observation_space = spaces.Box(low=0,high=255,shape=(SCREEN_WIDTH, SCREEN_HEIGHT, 3),dtype=np.uint8)
         #Using game logic: Watch grid 0..8 = safe tiles, 9 = bomb, -1 = covered tile
@@ -150,7 +153,7 @@ class MineSweeper(gym.Env):
 
         self.screen = None
         self.clock = None
-        
+
         self.reset()
 
 
@@ -193,24 +196,25 @@ class MineSweeper(gym.Env):
         uncoveredtiles = self.pickTile(self.decode_action_x(action),self.decode_action_y(action))
         # if uncoveredtiles >= 1:
         #     reward = 3
-        reward = uncoveredtiles
+        #reward = uncoveredtiles
+        reward = 0
         self.update_invalid_actions()
         terminated = False
         if uncoveredtiles == -1: #clicked tile with bomb
             self.revealChart()
-            reward = 0
+            reward = -1
             terminated = True
         elif uncoveredtiles == -2: #clicked uncovered tile
             reward = -1
         else: #clicked safe tile
             self.score += uncoveredtiles
         if self.score == self.WINNING_SCORE:
-            reward += 10
+            reward += 1
             terminated = True
-        # if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
-        #     reward -= 0.3
-        # else:
-        #     reward += 0.3
+        if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
+            reward -= 0.3
+        else:
+            reward += 0.3
         return np.int8(self.chart), reward, terminated, False, info
 
     def render_frame_human(self):

@@ -10,10 +10,10 @@ def evaluate_mask(model, env, timesteps):
         observation, reward, terminated,truncated, info = env.step(action)
         env.render()
         #time.sleep(1)
-        if terminated or truncated:
+        if terminated:
             scores += env.score
             numOfGames += 1
-            if truncated:
+            if env.score == env.WINNING_SCORE:
                 numOfWins += 1
             observation, info = env.reset()
             print(info)
@@ -29,10 +29,10 @@ def evaluate(model, env, timesteps):
         observation, reward, terminated,truncated, info = env.step(action)
         env.render()
         #time.sleep(1)
-        if terminated or truncated:
+        if terminated:
             scores += env.score
             numOfGames += 1
-            if truncated:
+            if env.score == env.WINNING_SCORE:
                 numOfWins += 1
             observation, info = env.reset()
             print(info)
