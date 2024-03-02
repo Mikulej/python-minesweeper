@@ -9,7 +9,7 @@ from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 from stable_baselines3.common.monitor import Monitor
 
 #Train Model
-env = MineSweeper(renderMode="human",sizeX=16,sizeY=16,bombs=40)
+env = MineSweeper(render_mode="human",sizeX=16,sizeY=16,bombs=40)
 #check_env(env)
 observation, info = env.reset()
 model = MaskablePPO("MlpPolicy", env,

@@ -120,8 +120,8 @@ class MineSweeper(gym.Env):
             totalReward += 1
         self.firstMove = False
         return totalReward
-    def __init__(self, renderMode=None, sizeX=20,sizeY=20,bombs=80):
-        self.RENDER_MODE = renderMode
+    def __init__(self, render_mode=None, sizeX=20,sizeY=20,bombs=80):
+        self.render_mode = render_mode
         self.TILE_X_AMOUNT = sizeX 
         self.TILE_Y_AMOUNT = sizeY
         self.BOMB_AMOUNT = bombs
@@ -147,24 +147,10 @@ class MineSweeper(gym.Env):
         self.hiddenChart = np.zeros((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT))
         self.grid = np.empty((self.TILE_Y_AMOUNT,self.TILE_X_AMOUNT),dtype=pygame.Rect)
         self.score = 0
-        if renderMode == "human":
-            pygame.init()
-            self.screen = pygame.display.set_mode((self.TILE_X_AMOUNT * 32,self.TILE_Y_AMOUNT * 32))
-            pygame.display.set_caption('Minesweeper')
-            self.sprites = pygame.image.load("sprites/minesweeper.png")
-            self.sprites = pygame.transform.scale(self.sprites,(128,128))
-            self.spriteEmpty1 = self.getSprite(self.sprites,32,32,0,0)
-            self.spriteEmpty2 = self.getSprite(self.sprites,32,32,1,0)
-            self.sprite0 = self.getSprite(self.sprites,32,32,3,3)
-            self.sprite1 = self.getSprite(self.sprites,32,32,0,1)
-            self.sprite2 = self.getSprite(self.sprites,32,32,1,1)
-            self.sprite3 = self.getSprite(self.sprites,32,32,2,1)
-            self.sprite4 = self.getSprite(self.sprites,32,32,3,1)
-            self.sprite5 = self.getSprite(self.sprites,32,32,0,2)
-            self.sprite6 = self.getSprite(self.sprites,32,32,1,2)
-            self.sprite7 = self.getSprite(self.sprites,32,32,2,2)
-            self.sprite8 = self.getSprite(self.sprites,32,32,3,2)
-            self.spriteBomb = self.getSprite(self.sprites,32,32,0,3)
+
+        self.screen = None
+        self.clock = None
+        
         self.reset()
 
 
@@ -210,7 +196,6 @@ class MineSweeper(gym.Env):
         reward = uncoveredtiles
         self.update_invalid_actions()
         terminated = False
-        #truncated = False
         if uncoveredtiles == -1: #clicked tile with bomb
             self.revealChart()
             reward = 0
@@ -221,25 +206,47 @@ class MineSweeper(gym.Env):
             self.score += uncoveredtiles
         if self.score == self.WINNING_SCORE:
             reward += 10
-            #truncated = True
             terminated = True
         # if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
         #     reward -= 0.3
         # else:
         #     reward += 0.3
         return np.int8(self.chart), reward, terminated, False, info
-        #return np.int8(self.chart), reward, terminated, truncated, info
 
-    def render(self,renderMode="human"):
-        match renderMode:
-            case "human":
-                self.screen.fill((0,0,0))
-                for i in range(0,self.TILE_Y_AMOUNT):
-                    for j in range (0,self.TILE_X_AMOUNT):
-                        self.drawTile(j,i,self.chart[i][j])  
-                
-                pygame.display.update()
-                #clock.tick(60) #60 framerate cap      
+    def render_frame_human(self):
+        if self.screen is None and self.render_mode == "human":
+            pygame.init()
+            self.screen = pygame.display.set_mode((self.TILE_X_AMOUNT * 32,self.TILE_Y_AMOUNT * 32))
+            pygame.display.set_caption('Minesweeper')
+            self.sprites = pygame.image.load("sprites/minesweeper.png")
+            self.sprites = pygame.transform.scale(self.sprites,(128,128))
+            self.spriteEmpty1 = self.getSprite(self.sprites,32,32,0,0)
+            self.spriteEmpty2 = self.getSprite(self.sprites,32,32,1,0)
+            self.sprite0 = self.getSprite(self.sprites,32,32,3,3)
+            self.sprite1 = self.getSprite(self.sprites,32,32,0,1)
+            self.sprite2 = self.getSprite(self.sprites,32,32,1,1)
+            self.sprite3 = self.getSprite(self.sprites,32,32,2,1)
+            self.sprite4 = self.getSprite(self.sprites,32,32,3,1)
+            self.sprite5 = self.getSprite(self.sprites,32,32,0,2)
+            self.sprite6 = self.getSprite(self.sprites,32,32,1,2)
+            self.sprite7 = self.getSprite(self.sprites,32,32,2,2)
+            self.sprite8 = self.getSprite(self.sprites,32,32,3,2)
+            self.spriteBomb = self.getSprite(self.sprites,32,32,0,3)
+        if self.clock is None and self.render_mode == "human":
+            self.clock = pygame.time.Clock()
+
+        self.screen.fill((0,0,0))
+        for i in range(0,self.TILE_Y_AMOUNT):
+            for j in range (0,self.TILE_X_AMOUNT):
+                self.drawTile(j,i,self.chart[i][j])  
+
+        pygame.display.update()
+        self.clock.tick(self.metadata["render_fps"])
+        
+    def render(self):
+        match self.render_mode:
+            case "human":           
+                return self.render_frame_human()
             case "console":
                 for i in range(0,self.TILE_Y_AMOUNT):
                     for j in range (0,self.TILE_X_AMOUNT):
@@ -248,6 +255,7 @@ class MineSweeper(gym.Env):
                         else:
                             print(int(self.chart[i][j]),end="")              
                     print("\n",end="")
+
     def close(self):
         pygame.quit()
         exit()
