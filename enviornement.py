@@ -121,6 +121,7 @@ class MineSweeper(gym.Env):
         self.firstMove = False
         return totalReward
     def __init__(self, render_mode=None, sizeX=20,sizeY=20,bombs=80):
+        super(MineSweeper, self).__init__()
         self.render_mode = render_mode
         self.TILE_X_AMOUNT = sizeX 
         self.TILE_Y_AMOUNT = sizeY
@@ -196,25 +197,25 @@ class MineSweeper(gym.Env):
         uncoveredtiles = self.pickTile(self.decode_action_x(action),self.decode_action_y(action))
         # if uncoveredtiles >= 1:
         #     reward = 3
-        #reward = uncoveredtiles
-        reward = 0
+        reward = uncoveredtiles
+        #reward = 0
         self.update_invalid_actions()
         terminated = False
         if uncoveredtiles == -1: #clicked tile with bomb
             self.revealChart()
-            reward = -1
+            reward = -200
             terminated = True
         elif uncoveredtiles == -2: #clicked uncovered tile
             reward = -1
         else: #clicked safe tile
             self.score += uncoveredtiles
         if self.score == self.WINNING_SCORE:
-            reward += 1
+            reward += 0
             terminated = True
-        if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
-            reward -= 0.3
-        else:
-            reward += 0.3
+        # if self.guessed(self.decode_action_x(action),self.decode_action_y(action)):
+        #     reward -= 0.3
+        # else:
+        #     reward += 0.3
         return np.int8(self.chart), reward, terminated, False, info
 
     def render_frame_human(self):
