@@ -4,7 +4,7 @@
 - [Miniconda](https://docs.anaconda.com/free/miniconda/index.html)
 # Miniconda setup
 - During or after installation set enviornement variable to `.../miniconda3` directory
-- Create enviornement `conda create .../python-minesweeper-main/.conda` or `Create enviornement...` option in python
+- Create enviornement `conda create .../python-minesweeper-main/.conda` or `Create enviornement...` option in Visual Studio Code
 - Activate enviornement `activate`
 - Restart IDE
 
