@@ -27,9 +27,8 @@ print("Learning...")
 # for i in range(1,10):
 #     model.learn(total_timesteps=steps,use_masking=True,reset_num_timesteps=False,tb_log_name="MaskPPO")
 #     model.save(f"models/{steps*i}")
-model.learn(total_timesteps=10000,use_masking=True)
+model.learn(total_timesteps=10,use_masking=True)
 print("Learning finished.")
-
 #Test Model
 print("Evaluating policy...")
 performence = evaluate_mask(model,env,timesteps=500)
