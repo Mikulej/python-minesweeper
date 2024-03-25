@@ -1,6 +1,7 @@
 from enviornement import MineSweeper
 from train import evaluate_mask
 
+
 from sb3_contrib import MaskablePPO
 # from sb3_contrib.common.maskable.evaluation import evaluate_policy
 # from stable_baselines3.common.env_checker import check_env
@@ -13,6 +14,9 @@ import torch as th
 import pickle
 import matplotlib.pyplot as plt
 
+#from custom_policy import CustomCNN
+from custom_policy import MyNetwork
+
 #Train Model
 env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=40)
 if env == None:
@@ -21,8 +25,8 @@ if env == None:
 # https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html
 # Custom actor (pi) and value function (vf) networks with Relu activation function
 # Note: an extra linear layer will be added on top of the pi and the vf nets, respectively
-policy_kwargs = dict(activation_fn=th.nn.ReLU,
-                     net_arch=[256, 64, 32])
+# policy_kwargs = dict(activation_fn=th.nn.ReLU,
+#                      net_arch=[256, 64, 32])
 # policy_kwargs = dict(activation_fn=th.nn.ReLU,
 #                     net_arch=[256, 32])
 # policy_kwargs = dict(activation_fn=th.nn.ReLU,
@@ -32,6 +36,10 @@ policy_kwargs = dict(activation_fn=th.nn.ReLU,
 # policy_kwargs = dict(activation_fn=th.nn.Conv2d(in_channels=1,out_channels=1,kernel_size=5)
 #                      )
 
+policy_kwargs = dict(
+    features_extractor_class=MyNetwork,
+    features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
+)
 observation, info = env.reset()
 model = MaskablePPO("MlpPolicy", env, policy_kwargs=policy_kwargs)
 # model = MaskablePPO("MlpPolicy", env,
