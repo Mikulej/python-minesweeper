@@ -4,7 +4,7 @@ from train import evaluate_mask
 
 from sb3_contrib import MaskablePPO
 # from sb3_contrib.common.maskable.evaluation import evaluate_policy
-# from stable_baselines3.common.env_checker import check_env
+from stable_baselines3.common.env_checker import check_env
 # from sb3_contrib.common.maskable.utils import get_action_masks
 # from sb3_contrib.common.maskable.callbacks import MaskableEvalCallback
 # from stable_baselines3.common.monitor import Monitor
@@ -14,8 +14,10 @@ import torch as th
 import pickle
 import matplotlib.pyplot as plt
 
+
 #from custom_policy import CustomCNN
 from custom_policy import MyNetwork
+
 
 #Train Model
 env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=40)
@@ -33,15 +35,13 @@ if env == None:
 #                      net_arch=dict(pi=[32, 32], vf=[32, 32]))
 # policy_kwargs = dict(activation_fn=th.nn.ReLU,
 #                     net_arch=dict(pi=[256, 64, 32], vf=[256, 64, 32]))
-# policy_kwargs = dict(activation_fn=th.nn.Conv2d(in_channels=1,out_channels=1,kernel_size=5)
-#                      )
-
 policy_kwargs = dict(
     features_extractor_class=MyNetwork,
-    features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
+   features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
 )
 observation, info = env.reset()
 model = MaskablePPO("MlpPolicy", env, policy_kwargs=policy_kwargs)
+
 # model = MaskablePPO("MlpPolicy", env,
 #                     learning_rate=0.0003,
 #                     n_steps= 2048,
