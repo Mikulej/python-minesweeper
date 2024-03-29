@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-dir_name='plots/2024-03-23_net_arch_256_64_32'
+dir_name='plots/2024-03-29_convolution_network2'
 with open(dir_name +'/total_performence.pkl', 'rb') as file:
     total_performence = pickle.load(file)
 

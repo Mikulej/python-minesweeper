@@ -30,11 +30,7 @@ if env == None:
 # policy_kwargs = dict(activation_fn=th.nn.ReLU,
 #                      net_arch=[256, 64, 32])
 # policy_kwargs = dict(activation_fn=th.nn.ReLU,
-#                     net_arch=[256, 32])
-# policy_kwargs = dict(activation_fn=th.nn.ReLU,
 #                      net_arch=dict(pi=[32, 32], vf=[32, 32]))
-# policy_kwargs = dict(activation_fn=th.nn.ReLU,
-#                     net_arch=dict(pi=[256, 64, 32], vf=[256, 64, 32]))
 policy_kwargs = dict(
     features_extractor_class=MyNetwork,
    features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
