@@ -36,4 +36,6 @@ def evaluate(model, env, timesteps):
                 numOfWins += 1
             observation, info = env.reset()
             print(info)
+    if numOfGames==0:#was unable to play one game(picked too many uncovered tiles)
+        return [0,0]    
     return [scores / numOfGames, 100 * numOfWins / numOfGames]
