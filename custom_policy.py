@@ -8,9 +8,6 @@ import torch.nn.functional as F
 from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
-
-from stable_baselines3 import PPO
-from stable_baselines3.common.policies import ActorCriticPolicy
 #Shared
 class NoChangeExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space: spaces.Box, features_dim: int = 256):
@@ -20,31 +17,7 @@ class NoChangeExtractor(BaseFeaturesExtractor):
         return observations
     
 #MaskablePPO version
-class CustomActorCriticPolicy(MaskableActorCriticPolicy):
-    def __init__(
-        self,
-        observation_space: spaces.Space,
-        action_space: spaces.Space,
-        lr_schedule: Callable[[float], float],
-        *args,
-        **kwargs,
-    ):
-        # Disable orthogonal initialization
-        kwargs["ortho_init"] = False
-        super().__init__(
-            observation_space,
-            action_space,
-            lr_schedule,
-            # Pass remaining arguments to base class
-            *args,
-            **kwargs,
-        )
-
-
-    def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomNetwork(self.features_dim)
-#PPO version
-# class CustomActorCriticPolicy(ActorCriticPolicy):
+# class CustomActorCriticPolicy(MaskableActorCriticPolicy):
 #     def __init__(
 #         self,
 #         observation_space: spaces.Space,
@@ -67,59 +40,81 @@ class CustomActorCriticPolicy(MaskableActorCriticPolicy):
 
 #     def _build_mlp_extractor(self) -> None:
 #         self.mlp_extractor = CustomNetwork(self.features_dim)
-#Network #1 
-# class CustomNetwork(nn.Module):
+#PPO version
+# class CustomActorCriticPolicy(ActorCriticPolicy):
 #     def __init__(
 #         self,
-#         feature_dim: int,
-#         last_layer_dim_pi: int = 4,
-#         last_layer_dim_vf: int = 4,
+#         observation_space: spaces.Space,
+#         action_space: spaces.Space,
+#         lr_schedule: Callable[[float], float],
+#         *args,
+#         **kwargs,
 #     ):
-#         super().__init__()
+#         # Disable orthogonal initialization
+#         kwargs["ortho_init"] = False
+#         super().__init__(
+#             observation_space,
+#             action_space,
+#             lr_schedule,
+#             # Pass remaining arguments to base class
+#             *args,
+#             **kwargs,
+#         )
+#     def _build_mlp_extractor(self) -> None:
+#         self.mlp_extractor = CustomNetwork(self.features_dim)
+#Network #1 
+class CustomNetwork(nn.Module):
+    def __init__(
+        self,
+        feature_dim: int,
+        last_layer_dim_pi: int = 4,
+        last_layer_dim_vf: int = 4,
+    ):
+        super().__init__()
 
-#         self.latent_dim_pi = last_layer_dim_pi
-#         self.latent_dim_vf = last_layer_dim_vf
+        self.latent_dim_pi = last_layer_dim_pi
+        self.latent_dim_vf = last_layer_dim_vf
 
-#         self.pi1 = nn.Conv2d(1, 32, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.pi2 = nn.Conv2d(32, 64, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.pi3 = nn.Conv2d(64, 128, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.pi4 = nn.Linear(2048, last_layer_dim_pi)
+        self.pi1 = nn.Conv2d(1, 32, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.pi2 = nn.Conv2d(32, 64, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.pi3 = nn.Conv2d(64, 128, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.pi4 = nn.Linear(2048, last_layer_dim_pi)
 
-#         self.vf1 = nn.Conv2d(1, 32, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.vf2 = nn.Conv2d(32, 64, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.vf3 = nn.Conv2d(64, 128, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
-#         self.vf4 = nn.Linear(2048, last_layer_dim_vf)
+        self.vf1 = nn.Conv2d(1, 32, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.vf2 = nn.Conv2d(32, 64, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.vf3 = nn.Conv2d(64, 128, kernel_size=(3,3), stride=1, padding=1,padding_mode='zeros')
+        self.vf4 = nn.Linear(2048, last_layer_dim_vf)
 
-#     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
-#         """
-#         :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
-#             If all layers are shared, then ``latent_policy == latent_value``
-#         """
-#         return self.forward_actor(features), self.forward_critic(features)
+    def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
+        """
+        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
+            If all layers are shared, then ``latent_policy == latent_value``
+        """
+        return self.forward_actor(features), self.forward_critic(features)
 
-#     def forward_actor(self, features: th.Tensor) -> th.Tensor:
-#         x = features
-#         x = th.unsqueeze(x,1)
-#         x = F.relu(self.pi1(x))
-#         x = F.max_pool2d(x,kernel_size=(2,2))
-#         x = F.relu(self.pi2(x))
-#         x = F.max_pool2d(x,kernel_size=(2,2))
-#         x = F.relu(self.pi3(x))
-#         x = th.flatten(x,start_dim=1)
-#         x = F.relu(self.pi4(x))
-#         return x
+    def forward_actor(self, features: th.Tensor) -> th.Tensor:
+        x = features
+        x = th.unsqueeze(x,1)
+        x = F.relu(self.pi1(x))
+        x = F.max_pool2d(x,kernel_size=(2,2))
+        x = F.relu(self.pi2(x))
+        x = F.max_pool2d(x,kernel_size=(2,2))
+        x = F.relu(self.pi3(x))
+        x = th.flatten(x,start_dim=1)
+        x = F.relu(self.pi4(x))
+        return x
 
-#     def forward_critic(self, features: th.Tensor) -> th.Tensor:
-#         x = features
-#         x = th.unsqueeze(x,1)
-#         x = F.relu(self.vf1(x))
-#         x = F.max_pool2d(x,kernel_size=(2,2))
-#         x = F.relu(self.vf2(x))
-#         x = F.max_pool2d(x,kernel_size=(2,2))
-#         x = F.relu(self.vf3(x))
-#         x = th.flatten(x,start_dim=1)
-#         x = F.relu(self.vf4(x))
-#         return x
+    def forward_critic(self, features: th.Tensor) -> th.Tensor:
+        x = features
+        x = th.unsqueeze(x,1)
+        x = F.relu(self.vf1(x))
+        x = F.max_pool2d(x,kernel_size=(2,2))
+        x = F.relu(self.vf2(x))
+        x = F.max_pool2d(x,kernel_size=(2,2))
+        x = F.relu(self.vf3(x))
+        x = th.flatten(x,start_dim=1)
+        x = F.relu(self.vf4(x))
+        return x
 #Network #2
 # class CustomNetwork(nn.Module):
 #     def __init__(
@@ -553,94 +548,77 @@ class CustomActorCriticPolicy(MaskableActorCriticPolicy):
 #         x = F.relu(self.vf4(x))
 #         return x
 #Network 10 (transformer)
-class CustomNetwork(nn.Module):
-    def __init__(
-        self,
-        feature_dim: int,
-        last_layer_dim_pi: int = 8,
-        last_layer_dim_vf: int = 8,
-    ):
-        super().__init__()
+# class CustomNetwork(nn.Module):
+#     def __init__(
+#         self,
+#         feature_dim: int,
+#         last_layer_dim_pi: int = 64,
+#         last_layer_dim_vf: int = 64,
+#     ):
+#         super().__init__()
 
-        self.latent_dim_pi = last_layer_dim_pi
-        self.latent_dim_vf = last_layer_dim_vf
+#         self.latent_dim_pi = last_layer_dim_pi
+#         self.latent_dim_vf = last_layer_dim_vf
 
-        # self.pi1 = nn.Conv2d(1, 32, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.pi2 = nn.Conv2d(32, 64, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.pi3 = nn.Conv2d(64, 128, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.pi4 = nn.Linear(2048, last_layer_dim_pi)
+#         EMBEDDING_DIM = 128#32
+#         FEATURE_SIZE = feature_dim
+#         STATES_AMOUNT = 11
+#         BATCH_SIZE = 64
 
-        # self.vf1 = nn.Conv2d(1, 32, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.vf2 = nn.Conv2d(32, 64, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.vf3 = nn.Conv2d(64, 128, kernel_size=(5,5), stride=1, padding=2,padding_mode='zeros')
-        # self.vf4 = nn.Linear(2048, last_layer_dim_vf)
+#         self.pi1 = nn.Embedding(num_embeddings=STATES_AMOUNT ,embedding_dim=EMBEDDING_DIM)
+#         self.pi2= nn.Transformer(nhead=2, num_encoder_layers=1,num_decoder_layers=1, d_model=EMBEDDING_DIM)
+#         self.pisrc = th.rand((STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
+#         self.pitgt = th.rand((STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
+#         self.pi3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM* BATCH_SIZE , last_layer_dim_pi)
 
-        EMBEDDING_DIM = 128
-        FEATURE_SIZE = 16*16
-        STATES_AMOUNT = 10
+#         # self.pisrc = th.rand((STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
+#         # self.pitgt = th.rand((STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
+#         # self.pi3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM, last_layer_dim_pi)
 
-        self.pi1 = nn.Embedding(num_embeddings=STATES_AMOUNT ,embedding_dim=EMBEDDING_DIM)
+#         self.vf1 = nn.Embedding(num_embeddings=STATES_AMOUNT ,embedding_dim=EMBEDDING_DIM)
+#         self.vf2= nn.Transformer(nhead=2, num_encoder_layers=1,num_decoder_layers=1, d_model=EMBEDDING_DIM)
+#         self.vfsrc = th.rand(( STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
+#         self.vftgt = th.rand(( STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
+#         self.vf3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM* BATCH_SIZE , last_layer_dim_vf)
 
-        self.pi2= nn.Transformer(nhead=16, num_encoder_layers=12, d_model=EMBEDDING_DIM)
-        # self.pisrc = th.rand((STATES_AMOUNT, EMBEDDING_DIM)).cuda()
-        # self.pitgt = th.rand((STATES_AMOUNT, EMBEDDING_DIM)).cuda()
-        # self.pisrc = th.rand((16, 32, EMBEDDING_DIM)).cuda()
-        # self.pitgt = th.rand((32, 32, EMBEDDING_DIM)).cuda()
-        self.pisrc = th.rand((10, 32, EMBEDDING_DIM)).cuda()
-        self.pitgt = th.rand((20, 32, EMBEDDING_DIM)).cuda()
-        # self.pisrc = th.rand((1, STATES_AMOUNT)).cuda()
-        # self.pitgt = th.rand((1, STATES_AMOUNT)).cuda()
-        self.pi3 = nn.Linear(524288, last_layer_dim_pi)
+#         # self.vfsrc = th.rand(( STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
+#         # self.vftgt = th.rand(( STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
+#         # self.vf3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM , last_layer_dim_vf)
 
-        
+#     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
+#         """
+#         :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
+#             If all layers are shared, then ``latent_policy == latent_value``
+#         """
+#         return self.forward_actor(features), self.forward_critic(features)
 
+#     def forward_actor(self, features: th.Tensor) -> th.Tensor:
+#         x = features
+#         #print("pi",x)
+#         #print("pi In: ",x.size())
+#         x = th.unsqueeze(x,1)
+#         #x = th.tensor(x,dtype=th.double)
+#         #print("pi Unsqueezed: ",x.size())
+#         x = self.pi2(self.pisrc, self.pitgt)
+#         #print("pi Transform: ",x.size())
+#         x = th.flatten(x,start_dim=0)
+#         x = self.pi3(x)
+#         #print("pi Linear: ",x.size())
+#         return x
 
-        self.vf1= nn.Transformer(nhead=16, num_encoder_layers=12, d_model=EMBEDDING_DIM)
-        self.vfsrc = th.rand((16, 32, EMBEDDING_DIM)).cuda()
-        self.vftgt = th.rand((32, 32, EMBEDDING_DIM)).cuda()
-        self.vf2 = nn.Linear(524288, last_layer_dim_vf)
-
-    def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
-        """
-        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
-            If all layers are shared, then ``latent_policy == latent_value``
-        """
-        return self.forward_actor(features), self.forward_critic(features)
-
-    def forward_actor(self, features: th.Tensor) -> th.Tensor:
-        x = features
-        x = th.unsqueeze(x,1)
-        #x = th.flatten(x,start_dim=1)
-        # x = F.relu(self.pi1(x))
-        #x = th.tensor(x).to(th.int)
-        x = th.tensor(x,dtype=th.int)
-        x = self.pi1(x)
-        x = self.pi2(self.pisrc, self.pitgt)
-        #x = th.unsqueeze(x,1)
-        x = th.flatten(x,start_dim=0)
-        x = F.relu(self.pi2(x))
-        # x = F.max_pool2d(x,kernel_size=(2,2))
-        # x = F.relu(self.pi2(x))
-        # x = F.max_pool2d(x,kernel_size=(2,2))
-        # x = F.relu(self.pi3(x))
-        # x = th.flatten(x,start_dim=1)
-        # x = F.relu(self.pi4(x))
-        return x
-
-    def forward_critic(self, features: th.Tensor) -> th.Tensor:
-        x = features
-        x = th.unsqueeze(x,1)
-        x = F.relu(self.vf1(self.vfsrc, self.vftgt))
-        #x = th.unsqueeze(x,1)
-        x = th.flatten(x,start_dim=0)
-        x = F.relu(self.vf2(x))
-        # x = F.max_pool2d(x,kernel_size=(2,2))
-        # x = F.relu(self.vf2(x))
-        # x = F.max_pool2d(x,kernel_size=(2,2))
-        # x = F.relu(self.vf3(x))
-         
-        # x = F.relu(self.vf4(x))
-        return x
+#     def forward_critic(self, features: th.Tensor) -> th.Tensor:
+#         x = features
+#         #print("vf",x)
+#         #print("vf In: ",x.size())
+#         x = th.unsqueeze(x,1)
+#         #x = th.tensor(x,dtype=th.double)
+#         #print("vf Unsqueezed: ",x.size())
+#         x = self.vf2(self.vfsrc, self.vftgt)
+#         #print("vf Transform: ",x.size())
+#         x = th.flatten(x,start_dim=0)
+#         x = self.vf3(x)
+#         #print("vf Linear: ",x.size())
+#         return x
 # import os
 # os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 #https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html#default-network-architecture
