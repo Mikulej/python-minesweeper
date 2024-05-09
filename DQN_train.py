@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 import torch as th
 import torch.nn as nn
 
+from custom_policy import CustomDQN
+from custom_policy import NoChangeExtractor
 #Train Model
 env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=40)
 if env == None:
@@ -31,11 +33,17 @@ if env == None:
 #Network #1
 observation, info = env.reset()
 policy_kwargs = dict(
-    net_arch= [256,64,32],
-    activation_fn=th.nn.ReLU,
+    # net_arch= [256,64,32],
+    # activation_fn=th.nn.ReLU,
+    #features_extractor_class=NoChangeExtractor,
+   #features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
+   features_extractor = nn.Flatten(),
+   features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT,
+
 )
 
-model = DQN("MlpPolicy", env,policy_kwargs=policy_kwargs)
+#model = DQN("MlpPolicy", env,policy_kwargs=policy_kwargs)
+model = DQN(CustomDQN, env,policy_kwargs=policy_kwargs)
 
 
 performence_arr = []

@@ -1,4 +1,4 @@
-from stable_baselines3 import PPO
+from stable_baselines3 import A2C
 from enviornement import MineSweeper
 from train import evaluate
 from custom_policy import CustomActorCriticPolicy
@@ -18,7 +18,7 @@ policy_kwargs = dict(
     features_extractor_class=NoChangeExtractor,
    features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
 )
-model = PPO(CustomActorCriticPolicy, env,policy_kwargs=policy_kwargs)
+model = A2C(CustomActorCriticPolicy, env,policy_kwargs=policy_kwargs)
 
 performence_arr = []
 iterations_arr = []
@@ -29,7 +29,7 @@ steps = 10000
 for i in range(1,50):
     start_time = time.time()
     print("step=",i)
-    model.learn(total_timesteps=steps,reset_num_timesteps=False,tb_log_name="PPO")
+    model.learn(total_timesteps=steps,reset_num_timesteps=False,tb_log_name="A2C")
     model.save(f"models/{steps*i}")
     print("Evaluating policy...")
     performence = evaluate(model,env,totalGames=20)

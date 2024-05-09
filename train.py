@@ -1,10 +1,10 @@
 
-def evaluate_mask(model, env, timesteps):
+def evaluate_mask(model, env, totalGames):
     scores = 0
     numOfGames = 0
     numOfWins = 0
     observation, info = env.reset()
-    while(numOfGames < 20):      
+    while(numOfGames < totalGames):      
         invalidActions = env.action_masks()
         action, states = model.predict(observation,action_masks=invalidActions,deterministic=False)
         observation, reward, terminated,truncated, info = env.step(action)
@@ -18,12 +18,12 @@ def evaluate_mask(model, env, timesteps):
             print(info)
     return [scores / numOfGames, 100 * numOfWins / numOfGames]
 
-def evaluate(model, env, timesteps):
+def evaluate(model, env, totalGames):
     scores = 0
     numOfGames = 0
     numOfWins = 0
     observation, info = env.reset()
-    while(numOfGames < 20):
+    while(numOfGames < totalGames):
         action, states = model.predict(observation,deterministic=False)
         observation, reward, terminated,truncated, info = env.step(action)
         env.render()
