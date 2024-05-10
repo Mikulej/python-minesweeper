@@ -35,11 +35,6 @@ observation, info = env.reset()
 policy_kwargs = dict(
     # net_arch= [256,64,32],
     # activation_fn=th.nn.ReLU,
-    #features_extractor_class=NoChangeExtractor,
-   #features_extractor_kwargs=dict(features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT),
-   features_extractor = nn.Flatten(),
-   features_dim=env.TILE_X_AMOUNT*env.TILE_Y_AMOUNT,
-
 )
 
 #model = DQN("MlpPolicy", env,policy_kwargs=policy_kwargs)
