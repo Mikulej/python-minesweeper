@@ -22,10 +22,12 @@ def evaluate(model, env, totalGames):
     scores = 0
     numOfGames = 0
     numOfWins = 0
+    timesteps = 0
     observation, info = env.reset()
-    while(numOfGames < totalGames):
+    while(numOfGames < totalGames and timesteps < 10000):
         action, states = model.predict(observation,deterministic=False)
         observation, reward, terminated,truncated, info = env.step(action)
+        timesteps += 1
         env.render()
         if terminated:
             scores += env.score
