@@ -9,7 +9,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 #Train Model
-env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=40)
+env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=53)
 if env == None:
     print("Error: Failed to create an enviornment")
     
@@ -53,12 +53,12 @@ for i in range(1,50):
 print("Learning finished.")
 
 #Test Model
-print("Playing...")
-env = MineSweeper(render_mode="human",sizeX=16,sizeY=16,bombs=40)
-performence = evaluate(model,env,totalGames=20)
-print("Mean score: ",performence[0]," Win-rate: ",performence[1],"%")
+# print("Playing...")
+# env = MineSweeper(render_mode="human",sizeX=16,sizeY=16,bombs=53)
+# performence = evaluate(model,env,totalGames=20)
+# print("Mean score: ",performence[0]," Win-rate: ",performence[1],"%")
 
-env.close()          
+# env.close()          
    
 
 #https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/blob/master/sb3_contrib/common/envs/invalid_actions_env.py

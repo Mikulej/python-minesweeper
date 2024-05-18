@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-dir_name='plots/A2C/2024-05-15_network9'
+dir_name='plots/expert53/PPO/2024-05-18_network9'
 with open(dir_name +'/total_performence.pkl', 'rb') as file:
     total_performence = pickle.load(file)
 
