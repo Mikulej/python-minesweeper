@@ -9,7 +9,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 #Train Model
-env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=53)
+env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=32)
 if env == None:
     print("Error: Failed to create an enviornment")
     
