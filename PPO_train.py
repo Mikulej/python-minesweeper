@@ -33,7 +33,7 @@ for i in range(1,50):
     model.save(f"models/{steps*i}")
     print("Evaluating policy...")
     performence = evaluate(model,env,totalGames=20)
-    #performence = evaluate_random(model,env,timesteps=500)
+    #performence = evaluate_random(model,env,totalGames=20)
     stop_time = time.time()
     print("Mean score: ",performence[0]," Win-rate: ",performence[1],"%")
     print("--- %s seconds ---" % (stop_time - start_time))

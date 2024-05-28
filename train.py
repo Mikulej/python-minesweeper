@@ -39,3 +39,25 @@ def evaluate(model, env, totalGames):
     if numOfGames==0:#was unable to play one game(picked too many uncovered tiles)
         return [0,0]    
     return [scores / numOfGames, 100 * numOfWins / numOfGames]
+
+def evaluate_random(model, env, totalGames):
+    scores = 0
+    numOfGames = 0
+    numOfWins = 0
+    timesteps = 0
+    observation, info = env.reset()
+    while(numOfGames < totalGames and timesteps < 10000):
+        action = env.action_space.sample()
+        observation, reward, terminated,truncated, info = env.step(action)
+        timesteps += 1
+        env.render()
+        if terminated:
+            scores += env.score
+            numOfGames += 1
+            if env.score == env.WINNING_SCORE:
+                numOfWins += 1
+            observation, info = env.reset()
+            print(info)
+    if numOfGames==0:#was unable to play one game(picked too many uncovered tiles)
+        return [0,0]    
+    return [scores / numOfGames, 100 * numOfWins / numOfGames]

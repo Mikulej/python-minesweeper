@@ -1,6 +1,7 @@
 from sb3_contrib import MaskablePPO
 from enviornement import MineSweeper
 from train import evaluate_mask
+from train import evaluate_random
 from custom_policy import CustomActorCriticPolicy
 from custom_policy import NoChangeExtractor
 
@@ -9,7 +10,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 #Train Model
-env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=32)
+env = MineSweeper(render_mode=None,sizeX=16,sizeY=16,bombs=53)
 if env == None:
     print("Error: Failed to create an enviornment")
     
@@ -33,7 +34,7 @@ for i in range(1,50):
     model.save(f"models/{steps*i}")
     print("Evaluating policy...")
     performence = evaluate_mask(model,env,totalGames=20)
-    #performence = evaluate_random(model,env,timesteps=500)
+    #performence = evaluate_random(model,env,totalGames=20)
     stop_time = time.time()
     print("Mean score: ",performence[0]," Win-rate: ",performence[1],"%")
     print("--- %s seconds ---" % (stop_time - start_time))

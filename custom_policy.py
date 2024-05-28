@@ -19,29 +19,7 @@ class NoChangeExtractor(BaseFeaturesExtractor):
         return observations
     
 #MaskablePPO version
-# class CustomActorCriticPolicy(MaskableActorCriticPolicy):
-#     def __init__(
-#         self,
-#         observation_space: spaces.Space,
-#         action_space: spaces.Space,
-#         lr_schedule: Callable[[float], float],
-#         *args,
-#         **kwargs,
-#     ):
-#         # Disable orthogonal initialization
-#         kwargs["ortho_init"] = False
-#         super().__init__(
-#             observation_space,
-#             action_space,
-#             lr_schedule,
-#             # Pass remaining arguments to base class
-#             *args,
-#             **kwargs,
-#         )
-#     def _build_mlp_extractor(self) -> None:
-#         self.mlp_extractor = CustomNetwork(self.features_dim)
-#PPO/A2C version
-class CustomActorCriticPolicy(ActorCriticPolicy):
+class CustomActorCriticPolicy(MaskableActorCriticPolicy):
     def __init__(
         self,
         observation_space: spaces.Space,
@@ -62,6 +40,28 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
         )
     def _build_mlp_extractor(self) -> None:
         self.mlp_extractor = CustomNetwork(self.features_dim)
+#PPO/A2C version
+# class CustomActorCriticPolicy(ActorCriticPolicy):
+#     def __init__(
+#         self,
+#         observation_space: spaces.Space,
+#         action_space: spaces.Space,
+#         lr_schedule: Callable[[float], float],
+#         *args,
+#         **kwargs,
+#     ):
+#         # Disable orthogonal initialization
+#         kwargs["ortho_init"] = False
+#         super().__init__(
+#             observation_space,
+#             action_space,
+#             lr_schedule,
+#             # Pass remaining arguments to base class
+#             *args,
+#             **kwargs,
+#         )
+#     def _build_mlp_extractor(self) -> None:
+#         self.mlp_extractor = CustomNetwork(self.features_dim)
 #Network #1 
 # class CustomNetwork(nn.Module):
 #     def __init__(
@@ -547,78 +547,4 @@ class CustomNetwork(nn.Module):
         x = th.flatten(x,start_dim=1)
         x = F.relu(self.vf4(x))
         return x
-#Network 10 (transformer)
-# class CustomNetwork(nn.Module):
-#     def __init__(
-#         self,
-#         feature_dim: int,
-#         last_layer_dim_pi: int = 64,
-#         last_layer_dim_vf: int = 64,
-#     ):
-#         super().__init__()
-
-#         self.latent_dim_pi = last_layer_dim_pi
-#         self.latent_dim_vf = last_layer_dim_vf
-
-#         EMBEDDING_DIM = 128#32
-#         FEATURE_SIZE = feature_dim
-#         STATES_AMOUNT = 11
-#         BATCH_SIZE = 64
-
-#         self.pi1 = nn.Embedding(num_embeddings=STATES_AMOUNT ,embedding_dim=EMBEDDING_DIM)
-#         self.pi2= nn.Transformer(nhead=2, num_encoder_layers=1,num_decoder_layers=1, d_model=EMBEDDING_DIM)
-#         self.pisrc = th.rand((STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
-#         self.pitgt = th.rand((STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
-#         self.pi3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM* BATCH_SIZE , last_layer_dim_pi)
-
-#         # self.pisrc = th.rand((STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
-#         # self.pitgt = th.rand((STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
-#         # self.pi3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM, last_layer_dim_pi)
-
-#         self.vf1 = nn.Embedding(num_embeddings=STATES_AMOUNT ,embedding_dim=EMBEDDING_DIM)
-#         self.vf2= nn.Transformer(nhead=2, num_encoder_layers=1,num_decoder_layers=1, d_model=EMBEDDING_DIM)
-#         self.vfsrc = th.rand(( STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
-#         self.vftgt = th.rand(( STATES_AMOUNT, BATCH_SIZE ,EMBEDDING_DIM)).cuda()
-#         self.vf3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM* BATCH_SIZE , last_layer_dim_vf)
-
-#         # self.vfsrc = th.rand(( STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
-#         # self.vftgt = th.rand(( STATES_AMOUNT ,EMBEDDING_DIM)).cuda()
-#         # self.vf3 = nn.Linear(STATES_AMOUNT*EMBEDDING_DIM , last_layer_dim_vf)
-
-#     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
-#         """
-#         :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
-#             If all layers are shared, then ``latent_policy == latent_value``
-#         """
-#         return self.forward_actor(features), self.forward_critic(features)
-
-#     def forward_actor(self, features: th.Tensor) -> th.Tensor:
-#         x = features
-#         #print("pi",x)
-#         #print("pi In: ",x.size())
-#         x = th.unsqueeze(x,1)
-#         #x = th.tensor(x,dtype=th.double)
-#         #print("pi Unsqueezed: ",x.size())
-#         x = self.pi2(self.pisrc, self.pitgt)
-#         #print("pi Transform: ",x.size())
-#         x = th.flatten(x,start_dim=0)
-#         x = self.pi3(x)
-#         #print("pi Linear: ",x.size())
-#         return x
-
-#     def forward_critic(self, features: th.Tensor) -> th.Tensor:
-#         x = features
-#         #print("vf",x)
-#         #print("vf In: ",x.size())
-#         x = th.unsqueeze(x,1)
-#         #x = th.tensor(x,dtype=th.double)
-#         #print("vf Unsqueezed: ",x.size())
-#         x = self.vf2(self.vfsrc, self.vftgt)
-#         #print("vf Transform: ",x.size())
-#         x = th.flatten(x,start_dim=0)
-#         x = self.vf3(x)
-#         #print("vf Linear: ",x.size())
-#         return x
-# import os
-# os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 #https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html#default-network-architecture
