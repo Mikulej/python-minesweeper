@@ -1,6 +1,6 @@
 from stable_baselines3 import PPO
 from enviornement import MineSweeper
-from train import evaluate
+from evaluate import evaluate
 from custom_policy import CustomActorCriticPolicy
 from custom_policy import NoChangeExtractor
 

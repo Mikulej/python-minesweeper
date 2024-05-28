@@ -1,7 +1,7 @@
 from sb3_contrib import MaskablePPO
 from enviornement import MineSweeper
-from train import evaluate_mask
-from train import evaluate_random
+from evaluate import evaluate_mask
+from evaluate import evaluate_random
 from custom_policy import CustomActorCriticPolicy
 from custom_policy import NoChangeExtractor
 

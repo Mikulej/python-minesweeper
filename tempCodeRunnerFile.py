@@ -1,2 +1,1 @@
-
-from enviornement import MineSweeper
+for i in range(1,50):
